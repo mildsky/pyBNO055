@@ -167,6 +167,14 @@ class BNO055:
     def setUnit(self, acc, gyro, euler, temp):
         self.i2c.write_byte_data(BNO055_ADDR, BNO055_UNIT_SEL_ADDR, (acc) | (gyro << 1) | (euler << 2) | (temp << 4))
 
+    def getEuler(self):
+        block = self.i2c.read_i2c_block_data(BNO055_ADDR, BNO055_EUL_HEADING_LSB_ADDR, 6)
+        unpacked = struct.unpack("hhh", bytes(block))
+        yaw = unpacked[0] / 16.0
+        roll = unpacked[1] / 16.0
+        pitch = unpacked[2] / 16.0
+        return roll, pitch, yaw
+
     def getQuaternion(self):
         block = self.i2c.read_i2c_block_data(BNO055_ADDR, BNO055_QUA_DATA_W_LSB_ADDR, 8)
         unpacked = struct.unpack("hhhh", bytes(block))
@@ -195,6 +203,8 @@ if __name__ == "__main__":
     while True:
         qw, qx, qy, qz = bno055.getQuaternion()
         gx, gy, gz = bno055.getGyro()
+        roll, pitch, yaw = bno055.getEuler()
         print("Quaternion: ({:.2f}, {:.2f}, {:.2f}, {:.2f})".format(qw, qx, qy, qz))
         print("Gyro: ({:.2f}, {:.2f}, {:.2f})".format(gx, gy, gz))
+        print("Euler: ({:.2f}, {:.2f}, {:.2f})".format(roll, pitch, yaw))
         time.sleep(0.1)
