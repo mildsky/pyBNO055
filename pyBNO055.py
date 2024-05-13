@@ -198,4 +198,3 @@ if __name__ == "__main__":
         print("Quaternion: ({:.2f}, {:.2f}, {:.2f}, {:.2f})".format(qw, qx, qy, qz))
         print("Gyro: ({:.2f}, {:.2f}, {:.2f})".format(gx, gy, gz))
         time.sleep(0.1)
-s
