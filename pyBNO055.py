@@ -138,6 +138,7 @@ BNO055_OPR_MODE_NDOF            = 0x0C
 from smbus2 import SMBus
 import time
 import struct
+import math
 
 class BNO055:
     __buf = []
@@ -184,6 +185,13 @@ class BNO055:
         qz = unpacked[3] / (1 << 14)
         return qw, qx, qy, qz
 
+    def getEulerFromQuaterion(self):
+        qw, qx, qy, qz = self.getQuaternion()
+        roll = 180 * math.atan2(2 * (qw * qx + qy * qz), 1 - 2 * (qx * qx + qy * qy)) / math.pi
+        pitch = 180 * math.asin(2 * (qw * qy - qz * qx)) / math.pi
+        yaw = 180 * math.atan2(2 * (qw * qz + qx * qy), 1 - 2 * (qy * qy + qz * qz)) / math.pi
+        return roll, pitch, yaw
+
     def getGyro(self):
         block = self.i2c.read_i2c_block_data(BNO055_ADDR, BNO055_GYR_DATA_X_LSB_ADDR, 6)
         unpacked = struct.unpack("hhh", bytes(block))
@@ -204,7 +212,9 @@ if __name__ == "__main__":
         qw, qx, qy, qz = bno055.getQuaternion()
         gx, gy, gz = bno055.getGyro()
         roll, pitch, yaw = bno055.getEuler()
+        r, p , y = bno055.getEulerFromQuaterion()
         print("Quaternion: ({:.2f}, {:.2f}, {:.2f}, {:.2f})".format(qw, qx, qy, qz))
         print("Gyro: ({:.2f}, {:.2f}, {:.2f})".format(gx, gy, gz))
         print("Euler: ({:.2f}, {:.2f}, {:.2f})".format(roll, pitch, yaw))
+        print("E f Q: ({:.2f}, {:.2f}, {:.2f})".format(r, p, y))
         time.sleep(0.1)
