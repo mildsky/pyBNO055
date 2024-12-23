@@ -199,6 +199,14 @@ class BNO055:
         gy = unpacked[1] / 900.0
         gz = unpacked[2] / 900.0
         return gx, gy, gz
+    
+    def getAccel(self):
+        block = self.i2c.read_i2c_block_data(BNO055_ADDR, BNO055_ACC_DATA_X_LSB_ADDR, 6)
+        unpacked = struct.unpack("hhh", bytes(block))
+        ax = unpacked[0] / 100.0
+        ay = unpacked[1] / 100.0
+        az = unpacked[2] / 100.0
+        return ax, ay, az
 
 if __name__ == "__main__":
     bno055 = BNO055()
